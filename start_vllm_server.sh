@@ -24,17 +24,22 @@ read
 # Activate the virtual environment
 source vllm-env/bin/activate
 
+# Check Ray cluster status
+echo "Checking Ray cluster status..."
+ray status
+
 # Enable debug logging to troubleshoot device detection issues
 export VLLM_LOGGING_LEVEL=DEBUG
 
 # Start vLLM server with Ray as distributed backend
-# Force CPU device since there are no local GPUs
+# Force the disable of async output processing to prevent NotImplementedError
 echo "Starting vLLM server with model: $MODEL"
 python -m vllm.entrypoints.openai.api_server \
     --model $MODEL \
     --host 0.0.0.0 \
     --port $SERVER_PORT \
     --device cpu \
+    --disable-async-output-proc \
     --distributed-executor-backend ray \
     --tensor-parallel-size 1  # Adjust based on number of GPUs on worker
 
