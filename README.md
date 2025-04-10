@@ -1,61 +1,55 @@
-# vLLM Server with Remote GPU Setup
+# vLLM Server Setup
 
-This setup allows running a vLLM server on a Linux machine while using GPUs from a Windows machine for the actual computation.
+This repository contains scripts for setting up a vLLM server, either in a distributed configuration or using Docker.
 
-## How it Works
+## Docker-Based Setup (Recommended)
 
-1. The Linux server runs the Ray head node and vLLM server
-2. The Windows machine with GPU connects as a Ray worker node
-3. vLLM distributes computation to the Windows GPU while the API server runs on Linux
+The easiest way to run vLLM is using Docker:
 
-## Requirements
+1. Make sure Docker and Docker Compose are installed on your system
+2. Run the start script:
+   ```bash
+   ./start_vllm_docker.sh
+   ```
+3. The vLLM server will be accessible at http://YOUR_IP:8142/v1
 
-### Linux Server
-- Python 3.10+
-- Ray
-- vLLM
+This method runs vLLM on your CPU and doesn't require a GPU.
 
-### Windows Machine
-- Python 3.10+
-- CUDA drivers installed
-- Ray
-- PyTorch with CUDA support
+### Customizing the Docker Setup
 
-## Setup Instructions
+To customize the model or other parameters, edit the `docker-compose.yml` file:
 
-### On Linux Server
-
-1. Create virtual environment and install dependencies:
-```bash
-python -m venv vllm-env
-source vllm-env/bin/activate
-pip install vllm ray
+```yaml
+environment:
+  - MODEL=facebook/opt-125m  # Change this to any HuggingFace model
+  - DEVICE=cpu               # Keep as CPU for this machine
 ```
 
-2. Run the server script (update IP address before providing to Windows machine):
-```bash
-./start_vllm_server.sh
-```
+## Distributed Setup with Windows GPU
 
-### On Windows Machine
+Alternatively, you can run vLLM in a distributed setup where:
+- This Linux server hosts the API endpoint
+- A Windows GPU machine provides GPU resources for inference
 
-1. Edit `windows_gpu_worker.bat` to set the correct HEAD_IP address of your Linux server
-2. Run the Windows script as administrator
-```
-windows_gpu_worker.bat
-```
+### Linux Server Setup
 
-## Configuration Options
+1. Start the Ray head node and API server:
+   ```bash
+   ./start_vllm_server.sh
+   ```
 
-You can modify both scripts to:
-- Change the model used by vLLM
-- Adjust tensor parallelism for multiple GPUs
-- Change ports
-- Set specific CUDA devices
+### Windows GPU Machine Setup
+
+1. Edit `windows_gpu_worker.bat` to set the correct Linux server IP
+2. Run the script as administrator on the Windows machine
+3. Once connected, press Enter on the Linux server to continue
+
+## Technical Details
+
+- vLLM provides a high-performance model serving system optimized for LLMs
+- Ray provides the framework for distributed computing
+- The Docker setup avoids platform compatibility issues
 
 ## Troubleshooting
 
-- Ensure both machines can reach each other on the network
-- Check that the IP addresses and ports are correctly set
-- Verify CUDA is properly installed on the Windows machine
-- If connection fails, check Windows firewall settings
+If you encounter issues with the distributed setup, try the Docker-based approach instead, as it's more reliable on CPU-only machines.

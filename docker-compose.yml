@@ -1,0 +1,28 @@
+version: '3'
+
+services:
+  vllm-api:
+    image: vllm/vllm-openai:v0.3.2
+    ports:
+      - "8142:8000"
+    environment:
+      - MODEL=facebook/opt-125m
+      - DEVICE=cpu
+      - PORT=8000
+      - HOST=0.0.0.0
+    volumes:
+      - vllm-cache:/root/.cache
+    command: >
+      --model ${MODEL}
+      --device ${DEVICE}
+      --host ${HOST} 
+      --port ${PORT}
+      --disable-async-output-proc
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 8G
+
+volumes:
+  vllm-cache:
