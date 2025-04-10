@@ -34,7 +34,8 @@ python -m vllm.entrypoints.openai.api_server \
     --model $MODEL \
     --host 0.0.0.0 \
     --port $SERVER_PORT \
-    --device cpu
+    --device cpu \
+    --disable-async-output-proc
 
 echo "vLLM server running at http://$(hostname -I | awk '{print $1}'):$SERVER_PORT"
 echo "Press Ctrl+C to stop the server"
