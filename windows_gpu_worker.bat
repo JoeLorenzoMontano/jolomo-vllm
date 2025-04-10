@@ -2,8 +2,8 @@
 :: windows_gpu_worker.bat - Script for Windows machine with GPU
 :: This script connects to the Ray head node and provides GPU resources
 
-:: Configuration
-set HEAD_IP=192.168.1.100
+:: Configuration - EDIT THIS SECTION
+set HEAD_IP=192.168.1.40
 set HEAD_PORT=6379
 set GPU_COUNT=1
 set VENV_NAME=vllm-env

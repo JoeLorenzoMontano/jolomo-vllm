@@ -5,7 +5,7 @@
 # Configuration parameters
 PORT=6379
 MODEL="facebook/opt-125m"  # Default small model, change to your preferred model
-SERVER_PORT=8000           # Port for vLLM API server
+SERVER_PORT=814          # Port for vLLM API server
 
 # Start Ray head node but specify 0 CPUs and 0 GPUs for LLM computation
 echo "Starting Ray head node on port $PORT with 0 local resources for LLM..."
