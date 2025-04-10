@@ -11,9 +11,9 @@ SERVER_PORT=8142          # Port for vLLM API server (must be above 1024 for non
 echo "Stopping existing Ray processes..."
 ray stop
 
-# Start Ray head node but specify 0 CPUs and 0 GPUs for LLM computation
-echo "Starting Ray head node on port $PORT with 0 local resources for LLM..."
-ray start --head --port=$PORT --resources='{"worker_resources": 0}' --num-cpus=0 --num-gpus=0
+# Start Ray head node - Allow 2 CPUs for coordination but don't use for model computation
+echo "Starting Ray head node on port $PORT..."
+ray start --head --port=$PORT --num-cpus=2 --num-gpus=0
 
 # Wait for worker node(s) to connect
 echo "Waiting for worker node(s) with GPU to connect..."
@@ -28,20 +28,13 @@ source vllm-env/bin/activate
 echo "Checking Ray cluster status..."
 ray status
 
-# Enable debug logging to troubleshoot device detection issues
-export VLLM_LOGGING_LEVEL=DEBUG
-
-# Start vLLM server with Ray as distributed backend
-# Force the disable of async output processing to prevent NotImplementedError
+# Start vLLM server
 echo "Starting vLLM server with model: $MODEL"
 python -m vllm.entrypoints.openai.api_server \
     --model $MODEL \
     --host 0.0.0.0 \
     --port $SERVER_PORT \
-    --device cpu \
-    --disable-async-output-proc \
-    --distributed-executor-backend ray \
-    --tensor-parallel-size 1  # Adjust based on number of GPUs on worker
+    --device cpu
 
 echo "vLLM server running at http://$(hostname -I | awk '{print $1}'):$SERVER_PORT"
 echo "Press Ctrl+C to stop the server"
